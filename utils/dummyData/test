@@ -1,0 +1,55 @@
+import express, { json } from 'express'
+import dotenv from 'dotenv'
+import dbConnect from './config/db.js'
+
+import categoryRoute from './routes/categoryRoute.js'
+import subCategoryRoute from './routes/subcategoryRoute.js'
+import brandRoute from './routes/brandRoute.js'
+import productRoute from './routes/productRoute.js'
+import errorHandler from './middleware/handlingError.js'
+import notFound from './config/notFound.js'
+import createError from './utils/errors.js'
+
+dotenv.config()
+// Express App
+const app = express()
+// middleware
+app.use(express.json())
+
+
+
+
+
+//Routes
+app.use('/api/vi/category', categoryRoute);
+app.use('/api/vi/subcategory', subCategoryRoute);
+app.use('/api/vi/brand', brandRoute);
+app.use('/api/vi/product', productRoute);
+
+
+app.use('*',notFound)
+
+
+
+//Global express handling middleware 
+app.use(errorHandler)
+
+const port = process.env.PORT || 6000;
+
+const server = app.listen(port, () => {
+    dbConnect();
+    console.log(` server is running ${port}  `); 
+}) 
+
+//Global rejection handling middleware
+
+process.on("unhandledRejection", (err) => {
+    console.log('unhandledRejection Errors', {
+        message: err.message,
+         stack: err.stack
+    });
+    server.close(() => {
+        console.log('server is shut down.....');
+        process.exit(1)
+    }
+)})
